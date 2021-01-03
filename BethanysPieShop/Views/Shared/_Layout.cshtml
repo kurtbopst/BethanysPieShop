@@ -8,20 +8,39 @@
     <link href="~/lib/bootstrap/css/bootstrap.css" rel="stylesheet" />
     <script src="~/lib/jquery/jquery.js"></script>
     <script src="~/lib/bootstrap/js/bootstrap.js"></script>
+    <script src="https://kit.fontawesome.com/722ca2d715.js" crossorigin="anonymous"></script>
     <link href="~/Content/site.css" rel="stylesheet" />
 </head>
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                <p class="lead">
-                    <img class="img-responsive" alt="Bethany's Pie Shop'" src="~/Images/bethanylogo.png" />
-                </p>
-            </div>
-            <div class="col-md-9">
+    <nav class="navbar navbar-light bg-light navbar-expand-lg sticky-top">
+        <a class="navbar-brand" asp-controller="Home" asp-action="Index">Bethany's Pie Shop</a>
+        <button class="navbar-toggler" type="button" 
+                data-toggle="collapse" data-target="#navbarSupportedContent" 
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle Navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                
+                    @await  Component.InvokeAsync("CategoryMenu")
+                    <li class="nav-item"> 
+                        <a class="nav-link text-dark"  asp-controller="Contact" asp-action="Index">Contact</a>
+                    </li>
+                    @await Component.InvokeAsync("ShoppingCartSummary")
+                    <partial name="_LoginPartial" />
+                
+            </ul>
+        </div>
+              
+        
+    </nav>
+    
+        <div class="container">
+            <div class="col-10">
                 @RenderBody()
             </div>
         </div>
-    </div>
+
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

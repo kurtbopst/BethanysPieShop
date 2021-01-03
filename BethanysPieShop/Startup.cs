@@ -8,20 +8,41 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BethanysPieShop.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Identity;
 
 namespace BethanysPieShop
 {
     public class Startup
     {
+        public IConfiguration Configuration { get; }
+
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IPieRepository, MockPieRepository>();
-            services.AddScoped<ICategoryRepository, MockCategoryRepository>();
+            services.AddDbContext<AppDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<AppDbContext>();
+
+            services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IPieRepository, PieRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ShoppingCart>(sp => ShoppingCart.GetCart(sp));
+            services.AddHttpContextAccessor();
+            services.AddSession();
             // services.AddTransient
             // services.AddSingleton();
             services.AddControllersWithViews();
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -34,17 +55,21 @@ namespace BethanysPieShop
 
             app.UseHttpsRedirection();
             app.UseStaticFiles(); //Allows for static files such as imgs
+            app.UseSession();
+            app.UseAuthentication();
+
+            app.UseRouting(); //Middleware that activates MVC routing
+            app.UseAuthorization();
 
 
-            app.UseRouting(); //Middleware components
 
-            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
-            });
+                endpoints.MapRazorPages();
+            }); //navigates to actions from controller methods
         }
     }
 }
